@@ -31,53 +31,58 @@ For web research, **WebSearch** and **WebFetch** are the execution tools. The im
 ## 🗂️ Project Organisation
 
 ```
-pipeline/
+Velozatech-Pipeline/                # 🗂️ Project root
 │
-├── run.py                          # 🚀 CLI entry point
-│                                   #    run_pipeline --stage 1 --industry "Plumbing" --region "Montreal"
-│
-├── config/
-│   ├── sources.py                  # 📚 Source registry — maps each category to allowed
-│   │                               #    sources in priority order (enforces source lock)
-│   ├── minimums.py                 # 🔢 Minimum count constants per Stage 1 category
-│   └── pe_firms.py                 # 🏦 Quebec PE firm portfolio URLs
-│                                   #    (Novacap, FTQ, Investissement Québec, Caisse de dépôt)
-│
-├── schemas/
-│   ├── stage1.py                   # 🏢 Pydantic: OrgRecord, PlayerMap
-│   ├── stage2.py                   # 🛒 Pydantic: BuyerProfile, FrictionMap
-│   └── stage3.py                   # 🔩 Pydantic: AssemblyRecord (Phase A), PartRecord (Phase B)
-│
-├── stages/
-│   ├── stage1/
-│   │   ├── runner.py               # 🎯 Orchestrates categories 1–8 in order
-│   │   ├── categories.py           # 🔍 One function per category — search logic + source progression
-│   │   ├── validation.py           # ✅ Dominant player validation, PE check, adjacent trade search
-│   │   └── output.py              # 📋 Formats and writes stage1_output.json + required footer
-│   │
-│   ├── stage2/
-│   │   ├── runner.py               # 🎯 Orchestrates player type analysis
-│   │   ├── sources.py              # 🔎 14 source handlers — one per source type
-│   │   └── synthesis.py            # 🧩 Aggregates raw signals into buyer profile per player type
-│   │
-│   └── stage3/
-│       ├── phase_a.py              # 🗺️ Taxonomy mapping — 7 sources × 8 archetypes
-│       ├── phase_b.py              # 🔬 Assembly decomposition — drill-down logic
-│       ├── phase_c.py              # 📊 Invokes build_export.py with Phase B data
-│       └── scripts/
-│           └── build_export.py     # 📁 Already exists — copied from Stage 3 skill
+├── pyproject.toml                  # 📦 Package config — declares `pipeline` CLI entry point
 │
 ├── state/                          # 💾 Persisted inter-stage state (enables resume)
-│   ├── stage1_output.json
+│   ├── stage1_output.json          #    Written after each category completes
 │   ├── stage2_output.json
 │   ├── stage3_taxonomy.json
 │   └── stage3_drilldown/
-│       └── [assembly_id].json      # One file per assembly drill-down
+│       └── [assembly_id].json      #    One file per assembly drill-down
 │
-└── utils/
-    ├── search.py                   # 🌐 WebSearch + WebFetch wrappers with staleness detection
-    ├── dedup.py                    # 🔄 Fuzzy org name matching
-    └── citations.py                # 📎 Citation validation — enforces source_url or flags UNVERIFIED
+└── src/
+    └── pipeline/                   # 🐍 Installable Python package
+        │
+        ├── run.py                  # 🚀 CLI entry point
+        │                           #    pipeline --stage 1 --industry "Plumbing" --region "Montreal"
+        │
+        ├── config/
+        │   ├── sources.py          # 📚 Source registry — maps each category to allowed
+        │   │                       #    sources in priority order (enforces source lock)
+        │   ├── minimums.py         # 🔢 Minimum count constants per Stage 1 category
+        │   └── pe_firms.py         # 🏦 Quebec PE firm portfolio URLs
+        │                           #    (Novacap, FTQ, Investissement Québec, Caisse de dépôt)
+        │
+        ├── schemas/
+        │   ├── stage1.py           # 🏢 Pydantic: OrgRecord, PlayerMap
+        │   ├── stage2.py           # 🛒 Pydantic: BuyerProfile, FrictionMap
+        │   └── stage3.py           # 🔩 Pydantic: AssemblyRecord (Phase A), PartRecord (Phase B)
+        │
+        ├── stages/
+        │   ├── stage1/
+        │   │   ├── runner.py       # 🎯 Orchestrates categories 1–8 in order
+        │   │   ├── categories.py   # 🔍 One function per category — search logic + source progression
+        │   │   ├── validations.py  # ✅ Dominant player validation, PE check, adjacent trade search
+        │   │   └── output.py       # 📋 Formats and writes stage1_output.json + required footer
+        │   │
+        │   ├── stage2/
+        │   │   ├── runner.py       # 🎯 Orchestrates player type analysis
+        │   │   ├── sources.py      # 🔎 14 source handlers — one per source type
+        │   │   └── synthesis.py    # 🧩 Aggregates raw signals into buyer profile per player type
+        │   │
+        │   └── stage3/
+        │       ├── phase_a.py      # 🗺️ Taxonomy mapping — 7 sources × 8 archetypes
+        │       ├── phase_b.py      # 🔬 Assembly decomposition — drill-down logic
+        │       ├── phase_c.py      # 📊 Invokes build_export.py with Phase B data
+        │       └── scripts/
+        │           └── build_export.py  # 📁 Excel export via openpyxl
+        │
+        └── utils/
+            ├── search.py           # 🌐 WebSearch + WebFetch wrappers with staleness detection
+            ├── dedup.py            # 🔄 Fuzzy org name matching
+            └── citations.py        # 📎 Citation validation — enforces source_url or flags UNVERIFIED
 ```
 
 ---
